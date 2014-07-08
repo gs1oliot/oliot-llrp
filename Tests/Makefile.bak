@@ -1,0 +1,61 @@
+#
+# Makefile for UN*X-like systems
+#
+
+# Change this line if you want a different compiler
+
+AR              = ar
+CXX             = g++
+CXXC = $(CXX) -Wall -W -Werror -I. -I../ThirdParty/cxxtest-4.3 -I../ThirdParty/LTK/LTKCPP/Library -I/usr/local/include -L../target -L../ThirdParty/LTK/LTKCPP/Library -L/usr/local/lib
+
+LIBS = -lltkcpp -lboost_system -lboost_thread
+
+TESTGEN = ../ThirdParty/cxxtest-4.3/bin/cxxtestgen
+
+#TARGETS = error_printer xml_printer
+TARGETS = xml_printer
+TESTS = MyTestSuite1.h
+
+
+all: $(TARGETS)
+
+clean:
+	rm -f *~ *.o *.obj $(TARGETS) $(GUI_TARGETS)
+	rm -f tests.cpp error_printer.cpp xml_printer.cpp aborter.cpp only.cpp
+
+distclean: clean
+	rm -f Makefile
+
+run: error_printer
+	@echo
+	@echo "=============================================="
+	@echo "===== LLRP_Reader Unit Test              ====="
+	@echo "=====               powered with CxxTest ====="
+	@echo "=============================================="
+	@echo
+	@echo "Running Testsuite..."
+	cd ../target ; ./error_printer
+	@echo
+
+xml_run: xml_printer
+	@echo 
+	@echo "=============================================="
+	@echo "===== LLRP_Reader Unit Test              ====="
+	@echo "=====               powered with CxxTest ====="
+	@echo "=============================================="
+	@echo
+	@echo "Running Testsuite..."
+	cd ../target ; ./xml_printer
+	@echo
+
+error_printer.cpp: $(TESTS)
+	$(TESTGEN) -o $@ --error-printer $(TESTS)
+
+xml_printer.cpp: $(TESTS)
+	$(TESTGEN) -o $@ --xunit-printer $(TESTS)
+
+tests.cpp: $(TESTS)
+	$(TESTGEN) -o $@ $(TESTS)
+
+%: %.cpp
+	$(CXXC) -o ../target/$@ $< $(LIBS)

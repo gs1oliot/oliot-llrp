@@ -1,0 +1,27 @@
+CXX = g++
+LIBPATH = -L.././target
+
+APP_OBJ = ReaderApp.o
+
+#CXXFLAGS = -I../ThirdParty/LTK/LTKCPP/Library -I/usr/local/include  -O2 -g -Wall -fPIC
+CXXFLAGS = -I../elfin_src -I/usr/local/include -O2 -g -Wall -fPIC
+
+APP_LIBS = -lboost_thread -lboost_system -lboost_program_options -lelfin
+
+TARGET = ../target/readerapp
+	
+all : readerapp 
+
+readerapp : $(APP_OBJ)
+	$(CXX) $(LIBPATH) -o $(TARGET) $(APP_OBJ) $(APP_LIBS)
+
+
+%.o: %.cpp
+	@echo [Compiling]: $<
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+clean:
+	rm -rf $(OBJECTS) $(APP_OBJ) $(TARGET) core
+
+.PHONY: $(TARGET)
+
+

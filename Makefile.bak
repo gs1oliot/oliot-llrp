@@ -1,0 +1,43 @@
+all: dependent LLRPReader.so xml_test 
+
+CXX = g++
+AR = ar
+
+.PHONY: LTK LLRPReader LLRPReader.so StubAppExample StubAppExample.so Tests all test clean
+
+# No abstract reader
+emulator: dependent LLRPReader.so xml_test
+
+# Sample abstract reader
+sample: dependent LLRPReader.so_sample xml_test
+
+dependent: LTK
+
+LTK: 
+	$(MAKE) all -C ThirdParty/LTK/LTKCPP
+	cp ThirdParty/LTK/LTKCPP/Library/libltkcpp.a ./target
+		
+LLRPReader.so: | LTK
+	$(MAKE) emulator -C elfin_src
+
+LLRPReader.so_sample: | LTK
+	$(MAKE) sample -C elfin_src
+	
+xml_test: | LTK
+	$(MAKE) all -C Tests
+
+test: | xml_test
+	$(MAKE) xml_run -C Tests
+
+
+everything: all
+
+clean:
+	$(MAKE) clean -C ThirdParty/LTK/LTKCPP
+	$(MAKE) clean -C elfin_src
+	$(MAKE) clean -C Tests
+	rm -f *.o *.core core.[0-9]*
+	rm -f ./target/lib*
+	rm -f ./target/readerapp
+	rm -f ./target/xml_printer
+	rm -f ./target/TEST-*

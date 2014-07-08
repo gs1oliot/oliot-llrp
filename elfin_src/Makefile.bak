@@ -1,0 +1,31 @@
+CXX = g++
+LIBPATH = -L.././target -L../ThirdParty/LTK/LTKCPP/Library
+
+OBJECTS = AbstractAntennaOperation.o AccessOperation.o AIOperation.o AOAdmin.o CConnectionFnC.o CConnectionFnCMgr.o ELFINReader.o EventNotifier.o ELFIN_ProgOpts.o GPIEventListener.o LLRPCore.o LLRPReader_Configurations.o ELFIN_Platform.o ReaderOperation.o RFSurveyOperation.o ROAdmin.o Scheduler.o TimerTask.o Stubs/StubReader.o Stubs/StubTag.o Stubs/StubAntenna.o Stubs/StubApp.o Stubs/StubGPIPort.o Stubs/StubGPOPort.o Triggers/ROSpecTrigger.o
+OBJECTS_SAMPLE = ReaderHandler/AbstractReader.o ReaderHandler/SampleReader.o
+
+CXXFLAGS = -I../ThirdParty/LTK/LTKCPP/Library -I/usr/local/include  -O2 -g -Wall -fPIC -Wl,-Map,foo.map 
+
+LIBS = -lboost_thread -lboost_system -lboost_program_options -lltkcpp -lxml2
+
+TARGET = libelfin.so 
+	
+all : sample emulator
+
+emulator : $(OBJECTS) 
+	$(CXX) $(LIBPATH) -shared -o "../target/libelfin.so" $(OBJECTS) $(LIBS)
+
+sample : $(OBJECTS) $(OBJECTS_SAMPLE)
+	$(CXX) $(LIBPATH) -shared -o "../target/libelfin.so" $(OBJECTS) $(OBJECTS_SAMPLE) $(LIBS) $(LIBS_SAMPLE) -Xlinker -Map=output.map
+
+%.o: %.cpp
+	@echo [Compiling]: $<
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+	@echo
+
+clean:
+	rm -rf $(OBJECTS) $(APP_OBJ) $(TARGET) core
+
+.PHONY: $(TARGET)
+
+
